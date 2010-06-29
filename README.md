@@ -8,7 +8,7 @@ somewhere else, just make sure you have access from your local machine.
 
 ## Installation
 
-    $ heroku plugins:install http://github.com/pedro/heroku-mongo-sync.git
+    $ heroku plugins:install http://github.com/vinova/heroku-mongo-sync.git
 
 ## Config
 
