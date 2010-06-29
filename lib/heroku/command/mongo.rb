@@ -9,7 +9,7 @@ module Heroku::Command
     end
 
     def push
-      display "THIS WILL REPLACE ALL DATA for #{app} ON #{heroku_mongo_uri.host} WITH #{local_mongo_uri.host}"
+      display "THIS WILL REPLACE ALL DATA for #{app} ON #{heroku_mongo_uri.host} WITH #{local_mongo_uri}"
       display "Are you sure? (y/n) ", false
       return unless ask.downcase == 'y'
       transfer(local_mongo_uri, heroku_mongo_uri)
@@ -55,9 +55,28 @@ module Heroku::Command
         error("Could not find the MONGO_URL for #{app}") unless url
         make_uri(url)
       end
-
+      
+      def mongoid_uri
+        # Try to use mongo development database name in mongoid.yml config file
+        begin
+          development_config = YAML::load_file('config/mongoid.yml')['development']
+          database = development_config['database']
+          if database
+            port = development_config['port'] || '27017'
+            host = development_config['host'] || 'localhost'
+            username = development_config['username']
+            password = development_config['password']
+            uri = "mongodb://"            
+            uri << "#{username}:#{password}@" if username && password
+            uri << "#{host}:#{port}/#{database}"
+            return uri
+          end
+        rescue StandardError => e
+        end
+      end
+      
       def local_mongo_uri
-        url = ENV['MONGO_URL'] || "mongodb://localhost:27017/#{app}"
+        url = mongoid_uri || ENV['MONGO_URL'] || "mongodb://localhost:27017/#{app}"
         make_uri(url)
       end
 
