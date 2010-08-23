@@ -9,14 +9,14 @@ module Heroku::Command
     end
 
     def push
-      display "THIS WILL REPLACE ALL DATA for #{app} ON #{heroku_mongo_uri.host} WITH #{local_mongo_uri}"
+      display "THIS WILL REPLACE ALL DATA for #{app} ON #{heroku_mongo_uri} WITH #{local_mongo_uri}"
       display "Are you sure? (y/n) ", false
       return unless ask.downcase == 'y'
       transfer(local_mongo_uri, heroku_mongo_uri)
     end
 
     def pull
-      display "Replacing the #{app} db at #{local_mongo_uri.host} with #{heroku_mongo_uri.host}"
+      display "Replacing the #{mongoid_database || app} db at #{local_mongo_uri} with #{heroku_mongo_uri}"
       transfer(heroku_mongo_uri, local_mongo_uri)
     end
 
@@ -56,19 +56,27 @@ module Heroku::Command
         make_uri(url)
       end
       
+      def mongoid_database
+        @@mongoid_database if mongoid_uri
+      end
+      
       def mongoid_uri
+        @@mongoid_uri ||= mongoid_uri_
+      end
+      
+      def mongoid_uri_
         # Try to use mongo development database name in mongoid.yml config file
         begin
-          development_config = YAML::load_file('config/mongoid.yml')['development']
-          database = development_config['database']
-          if database
-            port = development_config['port'] || '27017'
-            host = development_config['host'] || 'localhost'
-            username = development_config['username']
-            password = development_config['password']
+          config = YAML::load_file('config/mongoid.yml')['development']
+          @@mongoid_database = config['database']
+          if @@mongoid_database
+            port = config['port'] || '27017'
+            host = config['host'] || 'localhost'
+            username = config['username']
+            password = config['password']
             uri = "mongodb://"            
             uri << "#{username}:#{password}@" if username && password
-            uri << "#{host}:#{port}/#{database}"
+            uri << "#{host}:#{port}/#{@@mongoid_database}"
             return uri
           end
         rescue StandardError => e
