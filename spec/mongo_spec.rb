@@ -1,15 +1,19 @@
+#run as 'spec spec'
 require 'rubygems'
 require 'mongo'
-require 'baconmocha'
+require 'mocha'
 
 $: << File.dirname(__FILE__) + '/../lib'
 require 'heroku'
 require 'heroku/command'
 require 'heroku/command/mongo'
 
+include Mocha::API
 describe Heroku::Command::Mongo do
+
   before do
     @mongo = Heroku::Command::Mongo.new ['--app', 'myapp']
+    #@mongo.context()
     @mongo.stubs(:app).returns('myapp')
     @mongo.stubs(:display)
   end
@@ -34,24 +38,25 @@ describe Heroku::Command::Mongo do
     uri = @mongo.send(:make_uri, 'mongodb://root:secret@hatch.local.mongohq.com/mydb')
     uri.host.should == 'hatch.mongohq.com'
   end
-
+  
+  #cleanup mocks after use. The integration tests that follow require the real thing
+  after do
+    mocha_verify
+    mocha_teardown
+  end
+  
   describe "Integration test" do
     before do
       conn = Mongo::Connection.new
       @from     = conn.db('heroku-mongo-sync-origin')
-      @from_uri = URI.parse('mongodb://localhost/heroku-mongo-sync-origin')
+      @from_uri = URI.parse('mongodb://localhost:27017/heroku-mongo-sync-origin')
       @to       = conn.db('heroku-mongo-sync-dest')
-      @to_uri   = URI.parse('mongodb://localhost/heroku-mongo-sync-dest')
+      @to_uri   = URI.parse('mongodb://localhost:27017/heroku-mongo-sync-dest')
       clear_collections
     end
 
     after do
       clear_collections
-    end
-
-    def clear_collections
-      @from.collections.each { |c| c.drop }
-      @to.collections.each { |c| c.drop }
     end
 
     it "transfers records" do
@@ -60,7 +65,7 @@ describe Heroku::Command::Mongo do
       col.insert(:id => 2, :name => 'second')
 
       @mongo.send(:transfer, @from_uri, @to_uri)
-      @to.collection_names.should.include('a')
+      @to.collection_names.should include('a')
       @to.collection('a').find_one(:id => 1)['name'].should == 'first'
     end
 
@@ -73,5 +78,14 @@ describe Heroku::Command::Mongo do
       @mongo.send(:transfer, @from_uri, @to_uri)
       @to.collection('a').size.should == 1
     end
+  end
+
+  def clear_collections
+    @from.collections.each { |c| c.drop unless sys_indexes?(c)}
+    @to.collections.each { |c| c.drop unless sys_indexes?(c)}
+  end
+
+  def sys_indexes?(c)
+    c.name == 'system.indexes'
   end
 end
