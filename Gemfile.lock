@@ -1,11 +1,7 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    bacon (1.1.0)
-    baconmocha (0.0.2)
-      bacon
-      mocha (>= 0.9.6)
-    bson (1.0.4)
+    bson (1.0.7)
     configuration (1.1.0)
     heroku (1.9.14)
       json_pure (>= 1.2.0, < 1.5.0)
@@ -18,8 +14,8 @@ GEM
     mime-types (1.16)
     mocha (0.9.8)
       rake
-    mongo (1.0.7)
-      bson (>= 1.0.4)
+    mongo (1.0.8)
+      bson (>= 1.0.5)
     rake (0.8.7)
     rest-client (1.4.2)
       mime-types (>= 1.16)
@@ -29,7 +25,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  baconmocha
   heroku
   mocha
   mongo
