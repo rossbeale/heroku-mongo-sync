@@ -9,14 +9,14 @@ module Heroku::Command
     end
 
     def push
-      display "THIS WILL REPLACE ALL DATA for #{app} ON #{heroku_mongo_uri.host} WITH #{local_mongo_uri.host}"
+      display "THIS WILL REPLACE ALL DATA for #{app} ON #{heroku_mongo_uri.host} WITH #{local_mongo_uri.host} db #{local_db_name}"
       display "Are you sure? (y/n) ", false
       return unless ask.downcase == 'y'
       transfer(local_mongo_uri, heroku_mongo_uri)
     end
 
     def pull
-      display "Replacing the #{app} db at #{local_mongo_uri.host} with #{heroku_mongo_uri.host}"
+      display "Replacing the #{local_db_name} db at #{local_mongo_uri.host} with #{heroku_mongo_uri.host} #{app}"
       transfer(heroku_mongo_uri, local_mongo_uri)
     end
 
@@ -56,8 +56,16 @@ module Heroku::Command
         make_uri(url)
       end
 
+      def local_db_name
+        URI.parse(local_mongo_url).path.gsub("/","")
+      end
+
+      def local_mongo_url
+        ENV['MONGO_URL'] || "mongodb://localhost:27017/#{app}"
+      end
+
       def local_mongo_uri
-        url = ENV['MONGO_URL'] || "mongodb://localhost:27017/#{app}"
+        url = local_mongo_url
         make_uri(url)
       end
 
