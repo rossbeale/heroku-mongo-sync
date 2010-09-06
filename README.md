@@ -6,8 +6,17 @@ local and production mongo databases.
 It was tested and should just work with Mongo HQ. If you host your mongo db
 somewhere else, just make sure you have access from your local machine.
 
+## About this fork
+
+I've fixed a bug when running 1.9.2, "can't modify frozen string". While figuering out how to fix it, I created a new gemset in rvm and built a Gemfile describing the gems needed. I replaced baconmocha with rspec and mocha, for no other reason that I struggled getting bacon to run (and I don't real care much about the test runner, I care about tests). All tests run >spec spec. Oh yeah, I've added the mongodb default port in the tests.
+
+Thanks to pedro for creating the plugin!
+
 ## Installation
 
+    # From this ruby 1.9.2 fork
+    $ heroku plugins:install http://github.com:oma/heroku-mongo-sync.git
+    # or from the pedro's original
     $ heroku plugins:install http://github.com/pedro/heroku-mongo-sync.git
 
 ## Config
