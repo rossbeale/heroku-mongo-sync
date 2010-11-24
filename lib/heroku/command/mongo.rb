@@ -9,14 +9,14 @@ module Heroku::Command
     end
 
     def push
-      display "THIS WILL REPLACE ALL DATA for #{app} ON #{heroku_mongo_uri.host} WITH #{local_mongo_uri.host} db #{local_db_name}"
+      display "THIS WILL REPLACE ALL DATA for #{app} ON #{heroku_mongo_uri} WITH #{local_mongo_uri} db #{local_db_name}"
       display "Are you sure? (y/n) ", false
       return unless ask.downcase == 'y'
       transfer(local_mongo_uri, heroku_mongo_uri)
     end
 
     def pull
-      display "Replacing the #{local_db_name} db at #{local_mongo_uri.host} with #{heroku_mongo_uri.host} #{app}"
+      display "Replacing the #{mongoid_database || app} db at #{local_mongo_uri} with #{heroku_mongo_uri}"
       transfer(heroku_mongo_uri, local_mongo_uri)
     end
 
@@ -67,23 +67,41 @@ module Heroku::Command
         error("Could not find the MONGO_URL for #{app}") unless url
         make_uri(url)
       end
-
-      def local_db_name
-        URI.parse(local_mongo_url).path.gsub("/","")
+      
+      def mongoid_database
+        @@mongoid_database if mongoid_uri
       end
-
-      def local_mongo_url
-        ENV['MONGO_URL'] || "mongodb://localhost:27017/#{app}"
+      
+      def mongoid_uri
+        @@mongoid_uri ||= mongoid_uri_
       end
-
+      
+      def mongoid_uri_
+        # Try to use mongo development database name in mongoid.yml config file
+        begin
+          config = YAML::load_file('config/mongoid.yml')['development']
+          @@mongoid_database = config['database']
+          if @@mongoid_database
+            port = config['port'] || '27017'
+            host = config['host'] || 'localhost'
+            username = config['username']
+            password = config['password']
+            uri = "mongodb://"            
+            uri << "#{username}:#{password}@" if username && password
+            uri << "#{host}:#{port}/#{@@mongoid_database}"
+            return uri
+          end
+        rescue StandardError => e
+        end
+      end
+      
       def local_mongo_uri
-        url = local_mongo_url
+        url = mongoid_uri || ENV['MONGO_URL'] || "mongodb://localhost:27017/#{app}"
         make_uri(url)
       end
 
       def make_uri(url)
-        url = url.gsub('local.mongohq.com', 'mongohq.com')
-        uri = URI.parse(url)
+        uri = URI.parse(url.gsub('local.mongohq.com', 'mongohq.com'))
         raise URI::InvalidURIError unless uri.host
         uri
       rescue URI::InvalidURIError
