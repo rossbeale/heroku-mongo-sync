@@ -3,18 +3,16 @@
 This is a plugin for the Heroku command line, adding commands to sync your
 local and production mongo databases.
 
-It was tested and should just work with Mongo HQ. If you host your mongo db
+It was tested and should just work with Mongolab or Mongo HQ. If you host your mongo db
 somewhere else, just make sure you have access from your local machine.
 
 ## About this fork
 
-Thanks to pedro for creating the plugin!
-
-This merges a few forks that are out there.
+Thanks to pedro for creating the plugin, and for bitzesty for improving it. This fork just adds MongoLab to the mix.
 
 ## Installation
 
-    $ heroku plugins:install http://github.com/bitzesty/heroku-mongo-sync.git
+    $ heroku plugins:install http://github.com/micahbrich/heroku-mongo-sync.git
 
 ## Config
 
@@ -26,7 +24,7 @@ You can change any of these defining the URL it should connect to, like:
 
     export MONGO_URL = mongodb://user:pass@localhost:1234/db
 
-For production, it will fetch the MONGO_URL from the Heroku app config vars.
+For production, it will fetch the MONGO_URL, the MONGOLAB_URL, or the MONGOHQ_URL, in that order, from the Heroku app config vars.
 
 ## Usage
 
