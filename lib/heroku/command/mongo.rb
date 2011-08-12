@@ -9,7 +9,7 @@ module Heroku::Command
     end
 
     def push
-      display "THIS WILL REPLACE ALL DATA for #{app} ON #{heroku_mongo_uri} WITH #{local_mongo_uri} db #{local_db_name}"
+      display "THIS WILL REPLACE ALL DATA for #{app} ON #{heroku_mongo_uri} WITH #{mongoid_database || app}"
       display "Are you sure? (y/n) ", false
       return unless ask.downcase == 'y'
       transfer(local_mongo_uri, heroku_mongo_uri)
