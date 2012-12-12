@@ -2,7 +2,7 @@ module Heroku::Command
   class Mongo < BaseWithApp
     def initialize(*args)
       super
-
+      require 'yaml'
       require 'mongo'
     rescue LoadError
       error "Install the Mongo gem to use mongo commands:\nsudo gem install mongo"
