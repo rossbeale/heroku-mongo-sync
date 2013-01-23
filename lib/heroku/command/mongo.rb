@@ -83,6 +83,7 @@ module Heroku::Command
         # Try to use mongo development database name in mongoid.yml config file
         begin
           config = YAML::load_file('config/mongoid.yml')['development']
+          config = config['sessions']['default'] if config['session'] #mongoid 3 yaml format
           @@mongoid_database = config['database']
           if @@mongoid_database
             port = config['port'] || '27017'
