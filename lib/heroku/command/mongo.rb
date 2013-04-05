@@ -7,14 +7,14 @@ class Heroku::Command::Mongo < Heroku::Command::Base
   end
 
   def push
-    display "THIS WILL REPLACE ALL DATA for #{app} ON #{heroku_mongo_uri} WITH #{mongoid_database || app}"
+    display "THIS WILL REPLACE ALL DATA for #{app} ON #{heroku_mongo_uri} WITH #{local_mongo_uri}"
     display "Are you sure? (y/n) ", false
     return unless ask.downcase == 'y'
     transfer(local_mongo_uri, heroku_mongo_uri)
   end
 
   def pull
-    display "Replacing the #{mongoid_database || app} db at #{local_mongo_uri} with #{heroku_mongo_uri}"
+    display "Replacing the local db at #{local_mongo_uri} with #{heroku_mongo_uri}"
     transfer(heroku_mongo_uri, local_mongo_uri)
   end
 
@@ -67,10 +67,6 @@ class Heroku::Command::Mongo < Heroku::Command::Base
       else
         make_uri(url)
       end
-    end
-    
-    def mongoid_database
-      @@mongoid_database if mongoid_uri
     end
     
     def local_mongo_uri
