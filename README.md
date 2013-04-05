@@ -8,29 +8,18 @@ somewhere else, just make sure you have access from your local machine.
 
 ## About this fork
 
-Thanks to pedro for creating the plugin, and for bitzesty for improving it. This fork just adds MongoLab to the mix.
+Thanks to pedro for creating the plugin, and for bitzesty for improving it. This fork fixes all the deprecated warnings.
 
 ## Installation
 
-    $ heroku plugins:install http://github.com/micahbrich/heroku-mongo-sync.git
-
-## Config
-
-The plugin assumes your local mongo db is running on your localhost with the
-standard settings (port 27017, no auth). It will use a database named after
-the current Heroku app name.
-
-You can change any of these defining the URL it should connect to, like:
-
-    export MONGO_URL = mongodb://user:pass@localhost:1234/db
-
-For production, it will fetch the MONGO_URL, the MONGOLAB_URL, or the MONGOHQ_URL, in that order, from the Heroku app config vars.
+    $ heroku plugins:install http://github.com/rossbeale/heroku-mongo-sync.git
 
 ## Usage
 
 Get a copy of your production database with:
 
     $ heroku mongo:pull
+	Please input local mongodb name: db
     Replacing the myapp db at localhost with genesis.mongohq.com
     Syncing users (4)... done
     Syncing permissions (4)... done
@@ -39,7 +28,8 @@ Get a copy of your production database with:
 Update your production database with:
 
     $ heroku mongo:push
-    THIS WILL REPLACE ALL DATA FOR myapp ON genesis.mongohq.com WITH localhost
+	Please input local mongodb name: db
+    THIS WILL REPLACE ALL DATA for app ON mongodb://blahblah WITH mongodb://localhost:27017/db
     Are you sure? (y/n) y
     Syncing users (4)... done
     Syncing permissions (4)... done
@@ -60,5 +50,6 @@ the one to pull/push to by the git remote:
 
 Created by Pedro Belo. 
 Support for indexes, users and more added by Ben Wyrosdick.
+Fixed up by Ross Beale.
 
 Use at your own risk.
