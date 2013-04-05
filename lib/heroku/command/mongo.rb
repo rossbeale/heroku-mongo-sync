@@ -7,6 +7,9 @@ class Heroku::Command::Mongo < Heroku::Command::Base
   end
 
   def push
+    display "Please input local mongodb name: ", false
+    url = "mongodb://localhost:27017/#{ask.downcase}"
+    local_mongo_uri = make_uri(url)
     display "THIS WILL REPLACE ALL DATA for #{app} ON #{heroku_mongo_uri} WITH #{local_mongo_uri}"
     display "Are you sure? (y/n) ", false
     return unless ask.downcase == 'y'
@@ -14,6 +17,9 @@ class Heroku::Command::Mongo < Heroku::Command::Base
   end
 
   def pull
+    display "Please input local mongodb name: ", false
+    url = "mongodb://localhost:27017/#{ask.downcase}"
+    local_mongo_uri = make_uri(url)
     display "Replacing the local db at #{local_mongo_uri} with #{heroku_mongo_uri}"
     transfer(heroku_mongo_uri, local_mongo_uri)
   end
@@ -69,11 +75,6 @@ class Heroku::Command::Mongo < Heroku::Command::Base
       end
     end
     
-    def local_mongo_uri
-      url = ENV['MONGO_URL'] || "mongodb://localhost:27017/#{app}"
-      make_uri(url)
-    end
-
     def make_uri(url)
       uri = URI.parse(url.gsub('local.mongohq.com', 'mongohq.com'))
       raise URI::InvalidURIError unless uri.host
