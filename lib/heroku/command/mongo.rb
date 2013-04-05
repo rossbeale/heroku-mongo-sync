@@ -94,9 +94,5 @@ class Heroku::Command::Mongo < Heroku::Command::Base
     rescue ::Mongo::ConnectionFailure
       error("Could not connect to the mongo server at #{uri}")
     end
-
-    Help.group 'Mongo' do |group|
-      group.command 'mongo:push', 'push the local mongo database'
-      group.command 'mongo:pull', 'pull from the production mongo database'
-    end
+    
 end
